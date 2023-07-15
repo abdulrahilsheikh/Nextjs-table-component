@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import {
   Table,
   Thead,
@@ -12,36 +12,52 @@ import {
 } from "@chakra-ui/react";
 import { IDataTable } from "./DataTable.types";
 
-const DataTable = ({ caption, headers = [] }: IDataTable) => {
+const DataTable = ({
+  caption,
+  headers = [],
+  rows = [],
+  pagination = false,
+  sorting = false,
+}: IDataTable) => {
+  const sortable = useMemo(() => {
+    const temp: any = {};
+    headers.forEach((key) => {
+      console.log(typeof rows[0][key]);
+      temp[key] = typeof rows[0][key] != "object" ? true : false;
+    });
+    return temp;
+  }, [rows]);
   return (
-    <TableContainer>
-      <Table variant="simple">
-        {!!caption && <TableCaption>{caption}</TableCaption>}
-        <Thead>
-          <Tr>
-            {headers.map((value, idx) => (
-              <Th>{value}</Th>
-            ))}
-          </Tr>
-        </Thead>
-        <Tbody>
-          {
+    <>
+      <TableContainer>
+        <Table variant="simple">
+          {!!caption && <TableCaption>{caption}</TableCaption>}
+          <Thead>
             <Tr>
-              <Td>inches</Td>
-              <Td>millimetres (mm)</Td>
-              <Td isNumeric>25.4</Td>
+              {headers.map((value, idx) => (
+                <Th
+                  onClick={() => {
+                    sortable[value] && console.log(value);
+                  }}
+                >
+                  {value}
+                </Th>
+              ))}
             </Tr>
-          }
-        </Tbody>
-        <Tfoot>
-          <Tr>
-            <Th>To convert</Th>
-            <Th>into</Th>
-            <Th isNumeric>multiply by</Th>
-          </Tr>
-        </Tfoot>
-      </Table>
-    </TableContainer>
+          </Thead>
+          <Tbody>
+            {rows.map((item, idx) => (
+              <Tr>
+                {headers.map((value, idx) => (
+                  <Td>{item[value]}</Td>
+                ))}
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
+      {pagination && <div>Pagination</div>}
+    </>
   );
 };
 

@@ -8,7 +8,7 @@ export const rows: IDataTableRow[] = [
     Name: "John Doe",
     Source: "Online Store",
     Status: "Completed",
-    Select: true,
+    Select: <div>Yes</div>,
   },
   {
     Timestamp: "2023-07-14 09:21:35",
@@ -17,7 +17,7 @@ export const rows: IDataTableRow[] = [
     Name: "Jane Smith",
     Source: "Physical Store",
     Status: "Pending",
-    Select: false,
+    Select: <div>No</div>,
   },
   {
     Timestamp: "2023-07-13 18:45:21",
@@ -26,7 +26,7 @@ export const rows: IDataTableRow[] = [
     Name: "Alex Johnson",
     Source: "Online Store",
     Status: "Completed",
-    Select: true,
+    Select: <div>Yes</div>,
   },
   {
     Timestamp: "2023-07-12 10:30:15",
@@ -35,7 +35,7 @@ export const rows: IDataTableRow[] = [
     Name: "Emily White",
     Source: "Physical Store",
     Status: "Pending",
-    Select: false,
+    Select: <div>No</div>,
   },
 ];
 
