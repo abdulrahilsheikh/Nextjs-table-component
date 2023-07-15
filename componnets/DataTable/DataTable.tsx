@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Table,
   Thead,
@@ -9,8 +9,14 @@ import {
   Td,
   TableCaption,
   TableContainer,
+  Button,
 } from "@chakra-ui/react";
 import { IDataTable } from "./DataTable.types";
+import {
+  sortAsPerText,
+  sortAsPerDate,
+  sortAsPerNumber,
+} from "./DataTable.helper";
 
 const DataTable = ({
   caption,
@@ -19,6 +25,11 @@ const DataTable = ({
   pagination = false,
   sorting = false,
 }: IDataTable) => {
+  const [data, setData] = useState({
+    fieldRefrence: "",
+    direction: "DESC",
+    rows: rows,
+  });
   const sortable = useMemo(() => {
     const temp: any = {};
     headers.forEach((key) => {
@@ -27,6 +38,31 @@ const DataTable = ({
     });
     return temp;
   }, [rows]);
+
+  const sortingHandler = (fieldRefrence: string) => {
+    const direction = data.direction == "DESC" ? "ASC" : "DESC";
+
+    const sortedData = [...data.rows].sort((a, b) => {
+      const first = a[fieldRefrence] as string;
+      const second = b[fieldRefrence] as string;
+
+      if (!Number.isNaN(+first)) {
+        console.log("number");
+        return sortAsPerNumber(+first, +second, direction);
+      } else if (new Date(first).toString() != "Invalid Date") {
+        console.log("date");
+        return sortAsPerDate(first, second, direction);
+      } else {
+        console.log("text");
+        return sortAsPerText(first, second, direction);
+      }
+    });
+    console.log(sortedData);
+
+    setData({ fieldRefrence, direction, rows: sortedData });
+  };
+  console.log(data);
+
   return (
     <>
       <TableContainer>
@@ -35,18 +71,25 @@ const DataTable = ({
           <Thead>
             <Tr>
               {headers.map((value, idx) => (
-                <Th
-                  onClick={() => {
-                    sortable[value] && console.log(value);
-                  }}
-                >
-                  {value}
+                <Th alignContent="center">
+                  <span> {value}</span>
+                  {sortable[value] && (
+                    <Button
+                      marginRight={"auto"}
+                      onClick={() => {
+                        sortable[value] && sortingHandler(value);
+                      }}
+                      variant="ghost"
+                    >
+                      -
+                    </Button>
+                  )}
                 </Th>
               ))}
             </Tr>
           </Thead>
           <Tbody>
-            {rows.map((item, idx) => (
+            {data.rows.map((item, idx) => (
               <Tr>
                 {headers.map((value, idx) => (
                   <Td>{item[value]}</Td>
