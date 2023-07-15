@@ -25,7 +25,7 @@ export const rows: IDataTableRow[] = [
     Mail: "user@example.net",
     Name: "Alex Johnson",
     Source: "Online Store",
-    Status: "Completed",
+    Status: "Rejected",
     Select: <div>Yes</div>,
   },
   {

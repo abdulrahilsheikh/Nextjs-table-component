@@ -1,23 +1,39 @@
-import React, { useEffect, useMemo, useState } from "react";
 import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  MinusIcon,
+  TriangleDownIcon,
+  TriangleUpIcon,
+} from "@chakra-ui/icons";
+import {
+  Box,
+  Button,
+  ChakraProvider,
+  extendTheme,
   Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   TableCaption,
   TableContainer,
-  Button,
-  Box,
+  Tbody,
+  Td,
+  Th,
+  Thead,
+  Tr,
 } from "@chakra-ui/react";
-import { IDataTable } from "./DataTable.types";
+import { useEffect, useMemo, useState } from "react";
 import {
-  sortAsPerText,
   sortAsPerDate,
   sortAsPerNumber,
+  sortAsPerText,
 } from "./DataTable.helper";
-import { TriangleDownIcon, TriangleUpIcon, MinusIcon } from "@chakra-ui/icons";
+import { IDataTable } from "./DataTable.types";
+
+const theme = extendTheme({
+  colors: {
+    stripped: {
+      100: "#f5f5f559",
+    },
+  },
+});
 
 const DataTable = ({
   caption,
@@ -29,6 +45,8 @@ const DataTable = ({
   const [data, setData] = useState({
     fieldRefrence: "",
     direction: "DESC",
+    pageNo: 1,
+    pageSize: 25,
     rows: rows,
   });
   const sortable = useMemo(() => {
@@ -66,15 +84,15 @@ const DataTable = ({
         return sortAsPerText(first, second, direction);
       }
     });
-    setData({ fieldRefrence, direction, rows: sortedData });
+    setData({ ...data, fieldRefrence, direction, rows: sortedData });
   };
 
   console.log(sorting);
 
   return (
-    <>
+    <ChakraProvider theme={theme}>
       <TableContainer>
-        <Table variant="simple">
+        <Table variant="striped" colorScheme="stripped">
           {!!caption && <TableCaption>{caption}</TableCaption>}
           <Thead>
             <Tr>
@@ -124,8 +142,24 @@ const DataTable = ({
           </Tbody>
         </Table>
       </TableContainer>
-      {pagination && <div>Pagination</div>}
-    </>
+      {pagination && (
+        <Box
+          paddingY={3}
+          paddingX={6}
+          display="flex"
+          gap={2}
+          alignItems="center"
+        >
+          <Button>
+            <ArrowLeftIcon boxSize={3} />
+          </Button>
+          {5}
+          <Button>
+            <ArrowRightIcon boxSize={3} />
+          </Button>
+        </Box>
+      )}
+    </ChakraProvider>
   );
 };
 
