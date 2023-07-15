@@ -17,6 +17,7 @@ import {
   sortAsPerDate,
   sortAsPerNumber,
 } from "./DataTable.helper";
+import { TriangleDownIcon, TriangleUpIcon, MinusIcon } from "@chakra-ui/icons";
 
 const DataTable = ({
   caption,
@@ -40,12 +41,16 @@ const DataTable = ({
   }, [rows]);
 
   const sortingHandler = (fieldRefrence: string) => {
-    const direction = data.direction == "DESC" ? "ASC" : "DESC";
+    const direction =
+      data.fieldRefrence == fieldRefrence
+        ? data.direction == "DESC"
+          ? "ASC"
+          : "DESC"
+        : "ASC";
 
     const sortedData = [...data.rows].sort((a, b) => {
       const first = a[fieldRefrence] as string;
       const second = b[fieldRefrence] as string;
-
       if (!Number.isNaN(+first)) {
         console.log("number");
         return sortAsPerNumber(+first, +second, direction);
@@ -57,11 +62,8 @@ const DataTable = ({
         return sortAsPerText(first, second, direction);
       }
     });
-    console.log(sortedData);
-
     setData({ fieldRefrence, direction, rows: sortedData });
   };
-  console.log(data);
 
   return (
     <>
@@ -70,22 +72,30 @@ const DataTable = ({
           {!!caption && <TableCaption>{caption}</TableCaption>}
           <Thead>
             <Tr>
-              {headers.map((value, idx) => (
-                <Th alignContent="center">
-                  <span> {value}</span>
-                  {sortable[value] && (
-                    <Button
-                      marginRight={"auto"}
-                      onClick={() => {
-                        sortable[value] && sortingHandler(value);
-                      }}
-                      variant="ghost"
-                    >
-                      -
-                    </Button>
-                  )}
-                </Th>
-              ))}
+              {headers.map((value, idx) => {
+                const icons =
+                  data.direction == "ASC" ? (
+                    <TriangleDownIcon />
+                  ) : (
+                    <TriangleUpIcon />
+                  );
+                return (
+                  <Th alignContent="center">
+                    <span> {value}</span>
+                    {sortable[value] && (
+                      <Button
+                        marginLeft={24}
+                        onClick={() => {
+                          sortable[value] && sortingHandler(value);
+                        }}
+                        variant="ghost"
+                      >
+                        {data.fieldRefrence == value ? icons : <MinusIcon />}
+                      </Button>
+                    )}
+                  </Th>
+                );
+              })}
             </Tr>
           </Thead>
           <Tbody>
