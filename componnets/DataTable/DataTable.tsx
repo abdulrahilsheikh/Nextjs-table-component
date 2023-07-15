@@ -1,15 +1,15 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Table,
   Thead,
   Tbody,
-  Tfoot,
   Tr,
   Th,
   Td,
   TableCaption,
   TableContainer,
   Button,
+  Box,
 } from "@chakra-ui/react";
 import { IDataTable } from "./DataTable.types";
 import {
@@ -33,6 +33,7 @@ const DataTable = ({
   });
   const sortable = useMemo(() => {
     const temp: any = {};
+    if (!rows.length) return temp;
     headers.forEach((key) => {
       console.log(typeof rows[0][key]);
       temp[key] = typeof rows[0][key] != "object" ? true : false;
@@ -40,6 +41,9 @@ const DataTable = ({
     return temp;
   }, [rows]);
 
+  useEffect(() => {
+    setData({ ...data, rows });
+  }, [rows]);
   const sortingHandler = (fieldRefrence: string) => {
     const direction =
       data.fieldRefrence == fieldRefrence
@@ -65,6 +69,8 @@ const DataTable = ({
     setData({ fieldRefrence, direction, rows: sortedData });
   };
 
+  console.log(sorting);
+
   return (
     <>
       <TableContainer>
@@ -80,19 +86,28 @@ const DataTable = ({
                     <TriangleUpIcon />
                   );
                 return (
-                  <Th alignContent="center">
-                    <span> {value}</span>
-                    {sortable[value] && (
-                      <Button
-                        marginLeft={24}
-                        onClick={() => {
-                          sortable[value] && sortingHandler(value);
-                        }}
-                        variant="ghost"
-                      >
-                        {data.fieldRefrence == value ? icons : <MinusIcon />}
-                      </Button>
-                    )}
+                  <Th>
+                    <Box
+                      display="flex"
+                      width="100%"
+                      alignItems="center"
+                      justifyContent="space-between"
+                    >
+                      <Box>{value}</Box>
+                      {sorting && sortable[value] && (
+                        <Button
+                          padding={`0.125rem`}
+                          marginLeft={"auto"}
+                          marginRight={0}
+                          onClick={() => {
+                            sortable[value] && sortingHandler(value);
+                          }}
+                          variant="ghost"
+                        >
+                          {data.fieldRefrence == value ? icons : <MinusIcon />}
+                        </Button>
+                      )}
+                    </Box>
                   </Th>
                 );
               })}
