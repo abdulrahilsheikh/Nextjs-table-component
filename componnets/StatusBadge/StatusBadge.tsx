@@ -5,8 +5,8 @@ const StatusBadge = ({ status }: { status: string }) => {
 
   const colorScheme = {
     Pending: "yellow",
-    Completed: "green",
-    Rejected: "red",
+    Paid: "green",
+    Failed: "red",
   }[status];
 
   return (
