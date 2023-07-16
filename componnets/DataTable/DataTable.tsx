@@ -40,7 +40,7 @@ const theme = extendTheme({
     },
   },
 });
-const pageSizes = [5, 10, 25, 50];
+
 const DataTable = ({
   caption,
   headers = [],
@@ -48,6 +48,7 @@ const DataTable = ({
   pagination = false,
   sorting = false,
   loader = false,
+  pageSizes = [5, 10, 25, 50],
 }: IDataTable) => {
   const [data, setData] = useState({
     fieldRefrence: "",
@@ -178,14 +179,18 @@ const DataTable = ({
                 </Tr>
               ))
             ) : loader ? (
-              <Box
-                display="flex"
-                alignItems="center"
-                justifyContent="center"
-                padding={24}
-              >
-                <CircularProgress isIndeterminate />
-              </Box>
+              <Tr>
+                <Td colSpan={headers.length}>
+                  <Box
+                    padding={24}
+                    display="flex"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <CircularProgress isIndeterminate color="gray" />
+                  </Box>
+                </Td>
+              </Tr>
             ) : null}
           </Tbody>
         </Table>

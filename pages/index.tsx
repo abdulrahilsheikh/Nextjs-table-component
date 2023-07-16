@@ -11,22 +11,26 @@ export default function Home() {
   const [rows, setRows] = useState<IDataTableRow[]>([]);
 
   const getData = async () => {
-    const data: IDataTableRow[] = await getDataFromServer();
-    const temp = data.map((item) => {
-      const status: any = item.Status;
-      return {
-        ...item,
-        Status: <StatusBadge status={status} />,
-        Select: (
-          <Button
-            onClick={() => alert(`Product ID : ${item.PurchaseID} \nClicked`)}
-          >
-            Select
-          </Button>
-        ),
-      };
-    });
-    setRows(temp);
+    try {
+      const data: IDataTableRow[] = await getDataFromServer();
+      const temp = data.map((item) => {
+        const status: any = item.Status;
+        return {
+          ...item,
+          Status: <StatusBadge status={status} />,
+          Select: (
+            <Button
+              onClick={() => alert(`Product ID : ${item.PurchaseID} \nClicked`)}
+            >
+              Select
+            </Button>
+          ),
+        };
+      });
+      setRows(temp);
+    } catch (error) {
+      console.log(error);
+    }
   };
   useEffect(() => {
     getData();

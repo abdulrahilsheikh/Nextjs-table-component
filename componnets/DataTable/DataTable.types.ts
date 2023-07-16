@@ -5,6 +5,7 @@ export interface IDataTable {
   pagination?: boolean;
   sorting?: boolean;
   loader?: boolean;
+  pageSizes?: number[];
 }
 export interface IDataTableRow {
   [key: string]: string | boolean | number | JSX.Element;
