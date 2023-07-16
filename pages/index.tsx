@@ -24,7 +24,11 @@ export default function Home() {
         ),
       };
     });
-    setRows(temp);
+    const bulkData = [];
+    for (let i = 0; i < 20; i++) {
+      bulkData.push(...temp);
+    }
+    setRows(bulkData);
   }, []);
 
   return (

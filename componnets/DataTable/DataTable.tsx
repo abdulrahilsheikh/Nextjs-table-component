@@ -1,6 +1,7 @@
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
+  ChevronDownIcon,
   MinusIcon,
   TriangleDownIcon,
   TriangleUpIcon,
@@ -10,6 +11,10 @@ import {
   Button,
   ChakraProvider,
   extendTheme,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
   Table,
   TableCaption,
   TableContainer,
@@ -34,7 +39,7 @@ const theme = extendTheme({
     },
   },
 });
-
+const pageSizes = [10, 20, 50, 100];
 const DataTable = ({
   caption,
   headers = [],
@@ -48,6 +53,12 @@ const DataTable = ({
     pageNo: 1,
     pageSize: 25,
     rows: rows,
+  });
+  const [paginationInfo, setPaginationInfo] = useState({
+    nextPage: true,
+    prevPage: false,
+    currentPage: 1,
+    pageSize: 10,
   });
   const sortable = useMemo(() => {
     const temp: any = {};
@@ -87,7 +98,31 @@ const DataTable = ({
     setData({ ...data, fieldRefrence, direction, rows: sortedData });
   };
 
-  console.log(sorting);
+  const loopData = pagination
+    ? data.rows.slice(
+        paginationInfo.currentPage,
+        paginationInfo.currentPage + paginationInfo.pageSize
+      )
+    : data.rows;
+
+  const paginate = (
+    (totalItems) =>
+    ({ currentPage, pageSize }: any) => {
+      const totalPages = Math.ceil(totalItems / pageSize);
+      if (currentPage < 1) {
+        currentPage = 1;
+      } else if (currentPage > totalPages) {
+        currentPage = totalPages;
+      }
+
+      setPaginationInfo({
+        nextPage: currentPage != totalPages,
+        prevPage: currentPage > 1,
+        pageSize,
+        currentPage,
+      });
+    }
+  )(data.rows.length);
 
   return (
     <ChakraProvider theme={theme}>
@@ -132,7 +167,7 @@ const DataTable = ({
             </Tr>
           </Thead>
           <Tbody>
-            {data.rows.map((item, idx) => (
+            {loopData.map((item, idx) => (
               <Tr>
                 {headers.map((value, idx) => (
                   <Td>{item[value]}</Td>
@@ -150,13 +185,50 @@ const DataTable = ({
           gap={2}
           alignItems="center"
         >
-          <Button>
+          <Button
+            onClick={() =>
+              paginationInfo.prevPage &&
+              paginate({
+                ...paginationInfo,
+                currentPage: paginationInfo.currentPage - 1,
+              })
+            }
+          >
             <ArrowLeftIcon boxSize={3} />
           </Button>
-          {5}
-          <Button>
+          {paginationInfo.currentPage}
+          <Button
+            onClick={() =>
+              paginationInfo.nextPage &&
+              paginate({
+                ...paginationInfo,
+                currentPage: paginationInfo.currentPage + 1,
+              })
+            }
+          >
             <ArrowRightIcon boxSize={3} />
           </Button>
+          <Menu>
+            <>
+              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                {paginationInfo.pageSize}
+              </MenuButton>
+              <MenuList width={12}>
+                {pageSizes.map((item) => (
+                  <MenuItem
+                    onClick={() =>
+                      paginate({
+                        ...paginationInfo,
+                        pageSize: item,
+                      })
+                    }
+                  >
+                    {item}
+                  </MenuItem>
+                ))}
+              </MenuList>
+            </>
+          </Menu>
         </Box>
       )}
     </ChakraProvider>
