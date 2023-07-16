@@ -4,6 +4,7 @@ export interface IDataTable {
   rows: IDataTableRow[];
   pagination?: boolean;
   sorting?: boolean;
+  filter?: boolean;
   loader?: boolean;
   pageSizes?: number[];
 }

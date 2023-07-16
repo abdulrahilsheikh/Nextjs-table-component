@@ -7,8 +7,9 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<IDataTableRow[]>
 ) {
+  const limit = req.query.limit || 25;
   const data: IDataTableRow[] = [];
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < limit; i++) {
     const temp: any = {};
     temp.status = faker.helpers.arrayElement(["Pending", "Failed", "Paid"]);
     temp.timestamp = faker.date.anytime();
@@ -20,7 +21,7 @@ export default function handler(
       "Shop",
       "Facebook ads",
     ]);
-    temp["product ID"] = faker.string.numeric(8);
+    temp["purchase ID"] = faker.string.numeric(8);
     data.push(temp);
   }
   res.status(200).json(data);

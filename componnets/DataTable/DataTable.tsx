@@ -2,6 +2,7 @@ import {
   ArrowLeftIcon,
   ArrowRightIcon,
   ChevronDownIcon,
+  HamburgerIcon,
   MinusIcon,
   TriangleDownIcon,
   TriangleUpIcon,
@@ -12,10 +13,14 @@ import {
   ChakraProvider,
   CircularProgress,
   extendTheme,
+  IconButton,
   Menu,
   MenuButton,
+  MenuDivider,
   MenuItem,
+  MenuItemOption,
   MenuList,
+  MenuOptionGroup,
   Table,
   TableCaption,
   TableContainer,
@@ -24,8 +29,9 @@ import {
   Th,
   Thead,
   Tr,
+  Input,
 } from "@chakra-ui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   sortAsPerDate,
   sortAsPerNumber,
@@ -47,27 +53,27 @@ const DataTable = ({
   rows = [],
   pagination = false,
   sorting = false,
+  filter = false,
   loader = false,
   pageSizes = [5, 10, 25, 50],
 }: IDataTable) => {
+  const filterRef = useRef<any>({});
   const [data, setData] = useState({
     fieldRefrence: "",
     direction: "DESC",
-    pageNo: 1,
-    pageSize: 25,
     rows: rows,
   });
   const [paginationInfo, setPaginationInfo] = useState({
     nextPage: true,
     prevPage: false,
     currentPage: 1,
-    pageSize: 10,
+    pageSize: 5,
   });
-  const sortable = useMemo(() => {
+
+  const stringValues = useMemo(() => {
     const temp: any = {};
     if (!rows.length) return temp;
     headers.forEach((key) => {
-      console.log(typeof rows[0][key]);
       temp[key] = typeof rows[0][key] != "object" ? true : false;
     });
     return temp;
@@ -88,13 +94,31 @@ const DataTable = ({
       const first = a[fieldRefrence] as string;
       const second = b[fieldRefrence] as string;
       if (!Number.isNaN(+first)) {
-        console.log("number");
         return sortAsPerNumber(+first, +second, direction);
       } else if (new Date(first).toString() != "Invalid Date") {
-        console.log("date");
         return sortAsPerDate(first, second, direction);
       } else {
-        console.log("text");
+        return sortAsPerText(first, second, direction);
+      }
+    });
+    setData({ ...data, fieldRefrence, direction, rows: sortedData });
+  };
+  const filterHandler = (data: any) => {
+    const direction =
+      data.fieldRefrence == fieldRefrence
+        ? data.direction == "DESC"
+          ? "ASC"
+          : "DESC"
+        : "ASC";
+
+    const sortedData = [...data.rows].sort((a, b) => {
+      const first = a[fieldRefrence] as string;
+      const second = b[fieldRefrence] as string;
+      if (!Number.isNaN(+first)) {
+        return sortAsPerNumber(+first, +second, direction);
+      } else if (new Date(first).toString() != "Invalid Date") {
+        return sortAsPerDate(first, second, direction);
+      } else {
         return sortAsPerText(first, second, direction);
       }
     });
@@ -110,7 +134,7 @@ const DataTable = ({
 
   const paginate = (
     (totalItems) =>
-    ({ currentPage, pageSize }: any) => {
+    ({ currentPage, pageSize }: { currentPage: number; pageSize: number }) => {
       const totalPages = Math.ceil(totalItems / pageSize);
       if (currentPage < 1) {
         currentPage = 1;
@@ -125,10 +149,11 @@ const DataTable = ({
       });
     }
   )(data.rows.length);
+  console.log(filterRef, sorting);
 
   return (
     <ChakraProvider theme={theme}>
-      <TableContainer maxHeight="100%">
+      <TableContainer>
         <Table variant="striped" colorScheme="stripped">
           {!!caption && <TableCaption>{caption}</TableCaption>}
           <Thead>
@@ -149,19 +174,122 @@ const DataTable = ({
                       justifyContent="space-between"
                     >
                       <Box>{value}</Box>
-                      {sorting && sortable[value] && (
-                        <Button
-                          padding={`0.125rem`}
-                          marginLeft={"auto"}
-                          marginRight={0}
-                          onClick={() => {
-                            sortable[value] && sortingHandler(value);
-                          }}
-                          variant="ghost"
-                        >
-                          {data.fieldRefrence == value ? icons : <MinusIcon />}
-                        </Button>
-                      )}
+                      <Box
+                        marginLeft={"auto"}
+                        display="flex"
+                        alignItems="center"
+                        gap="2"
+                        marginRight={0}
+                      >
+                        {sorting && stringValues[value] && (
+                          <Button
+                            padding={`0.125rem`}
+                            onClick={() => {
+                              stringValues[value] && sortingHandler(value);
+                            }}
+                            variant="ghost"
+                          >
+                            {data.fieldRefrence == value ? (
+                              icons
+                            ) : (
+                              <MinusIcon />
+                            )}
+                          </Button>
+                        )}
+                        {filter && stringValues[value] && (
+                          // <Menu
+                          //   padding={`0.125rem`}
+                          //   onClick={() => {
+                          //     stringValues[value] && sortingHandler(value);
+                          //   }}
+                          //   variant="ghost"
+                          // >
+                          //   {data.fieldRefrence == value ? (
+                          //     <HamburgerIcon />
+                          //   ) : (
+                          //     <HamburgerIcon color="grey" />
+                          //   )}
+                          // </Menu>
+
+                          <Menu closeOnSelect={false}>
+                            {({ onClose }) => {
+                              if (!filterRef.current[value]) {
+                                filterRef.current[value] = {
+                                  type: "",
+                                  value: "",
+                                };
+                              }
+                              const selector = filterRef.current[value];
+                              return (
+                                <>
+                                  <MenuButton
+                                    colorScheme={
+                                      selector.type && selector.value
+                                        ? "teal"
+                                        : "gray"
+                                    }
+                                    as={IconButton}
+                                    aria-label="Options"
+                                    icon={<HamburgerIcon />}
+                                    variant="outline"
+                                  ></MenuButton>
+                                  <MenuList minWidth="240px">
+                                    <Input
+                                      placeholder="Value to filter"
+                                      onChange={(e) => {
+                                        selector.value = e.target.value;
+                                      }}
+                                    />
+                                    <MenuOptionGroup
+                                      defaultValue=""
+                                      title="Fiter Type"
+                                      type="radio"
+                                      value={selector.type}
+                                      onChange={(e: any) => {
+                                        selector.type = e;
+                                      }}
+                                    >
+                                      <MenuItemOption value="==">
+                                        Is Equal to
+                                      </MenuItemOption>
+                                      <MenuItemOption value="<">
+                                        Is Less Than
+                                      </MenuItemOption>
+                                      <MenuItemOption value=">">
+                                        Is Greater Than
+                                      </MenuItemOption>
+                                      <MenuItemOption value="inc">
+                                        Includes
+                                      </MenuItemOption>
+                                    </MenuOptionGroup>
+                                    <Box
+                                      paddingY="2"
+                                      paddingX="8"
+                                      display="flex"
+                                      justifyContent="space-between"
+                                    >
+                                      <Button
+                                        onClick={() => {
+                                          filterHandler(selector);
+                                          onClose();
+                                        }}
+                                      >
+                                        Apply
+                                      </Button>
+                                      <Button
+                                        colorScheme={"red"}
+                                        onClick={onClose}
+                                      >
+                                        Clear All
+                                      </Button>
+                                    </Box>
+                                  </MenuList>
+                                </>
+                              );
+                            }}
+                          </Menu>
+                        )}
+                      </Box>
                     </Box>
                   </Th>
                 );

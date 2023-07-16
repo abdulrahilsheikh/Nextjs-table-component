@@ -20,17 +20,19 @@ import { useEffect, useState } from "react";
 export default function Home() {
   const [rows, setRows] = useState<IDataTableRow[]>([]);
 
-  const getData = async () => {
+  const getData = async (limit: number) => {
     try {
-      const data: IDataTableRow[] = await getDataFromServer();
+      const data: IDataTableRow[] = await getDataFromServer(limit);
       const temp = data.map((item) => {
         const status: any = item.status;
         return {
           ...item,
           status: <StatusBadge status={status} />,
-          select: (
+          selected: (
             <Button
-              onClick={() => alert(`Product ID : ${item.PurchaseID} \nClicked`)}
+              onClick={() =>
+                alert(`Product ID : ${item["purchase ID"]} \nClicked`)
+              }
             >
               Select
             </Button>
@@ -43,7 +45,7 @@ export default function Home() {
     }
   };
   useEffect(() => {
-    getData();
+    getData(100);
   }, []);
 
   return (
@@ -51,25 +53,54 @@ export default function Home() {
       <Box padding={8}>
         <Tabs variant="soft-rounded" colorScheme="green">
           <TabList>
+            <Tab>With Caption</Tab>
             <Tab>With Sorting</Tab>
             <Tab>With Pagination</Tab>
             <Tab>With Both</Tab>
+            <Tab>With Filter</Tab>
           </TabList>
           <TabPanels>
-            <TabPanel>
+            <TabPanel paddingX="0">
               <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
-                <DataTable loader sorting headers={headers} rows={rows} />
+                <DataTable
+                  loader
+                  caption="Monthly Sales Data"
+                  headers={headers}
+                  rows={rows.slice(0, 5)}
+                />
               </Box>
             </TabPanel>
-            <TabPanel>
+            <TabPanel paddingX="0">
+              <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+                <DataTable
+                  loader
+                  sorting
+                  headers={headers}
+                  rows={rows.slice(0, 25)}
+                />
+              </Box>
+            </TabPanel>
+            <TabPanel paddingX="0">
               <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
                 <DataTable loader pagination headers={headers} rows={rows} />
               </Box>
             </TabPanel>
-            <TabPanel>
+            <TabPanel paddingX="0">
               <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
                 <DataTable
                   loader
+                  sorting
+                  pagination
+                  headers={headers}
+                  rows={rows}
+                />
+              </Box>
+            </TabPanel>
+            <TabPanel paddingX="0">
+              <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+                <DataTable
+                  loader
+                  filter
                   sorting
                   pagination
                   headers={headers}
