@@ -20,6 +20,7 @@ export default function handler(
       "Shop",
       "Facebook ads",
     ]);
+    temp["product ID"] = faker.string.numeric(8);
     data.push(temp);
   }
   res.status(200).json(data);

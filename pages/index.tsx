@@ -1,10 +1,20 @@
 import DataTable from "@/componnets/DataTable/DataTable";
 import { IDataTableRow } from "@/componnets/DataTable/DataTable.types";
 import StatusBadge from "@/componnets/StatusBadge/StatusBadge";
-import { headers, rows as data } from "@/mockdata/DataTable.mockdata";
+import { headers } from "@/utils/constants";
+
 import { getDataFromServer } from "@/utils/http";
 
-import { Box, Button, ChakraProvider } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  ChakraProvider,
+  Tab,
+  TabList,
+  TabPanel,
+  TabPanels,
+  Tabs,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -14,11 +24,11 @@ export default function Home() {
     try {
       const data: IDataTableRow[] = await getDataFromServer();
       const temp = data.map((item) => {
-        const status: any = item.Status;
+        const status: any = item.status;
         return {
           ...item,
-          Status: <StatusBadge status={status} />,
-          Select: (
+          status: <StatusBadge status={status} />,
+          select: (
             <Button
               onClick={() => alert(`Product ID : ${item.PurchaseID} \nClicked`)}
             >
@@ -39,9 +49,36 @@ export default function Home() {
   return (
     <ChakraProvider>
       <Box padding={8}>
-        <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
-          <DataTable loader sorting pagination headers={headers} rows={rows} />
-        </Box>
+        <Tabs variant="soft-rounded" colorScheme="green">
+          <TabList>
+            <Tab>With Sorting</Tab>
+            <Tab>With Pagination</Tab>
+            <Tab>With Both</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+                <DataTable loader sorting headers={headers} rows={rows} />
+              </Box>
+            </TabPanel>
+            <TabPanel>
+              <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+                <DataTable loader pagination headers={headers} rows={rows} />
+              </Box>
+            </TabPanel>
+            <TabPanel>
+              <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+                <DataTable
+                  loader
+                  sorting
+                  pagination
+                  headers={headers}
+                  rows={rows}
+                />
+              </Box>
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
       </Box>
     </ChakraProvider>
   );

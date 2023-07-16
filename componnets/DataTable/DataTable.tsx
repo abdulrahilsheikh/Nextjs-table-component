@@ -117,7 +117,6 @@ const DataTable = ({
       } else if (currentPage > totalPages) {
         currentPage = totalPages;
       }
-
       setPaginationInfo({
         nextPage: currentPage != totalPages,
         prevPage: currentPage > 1,
@@ -129,7 +128,7 @@ const DataTable = ({
 
   return (
     <ChakraProvider theme={theme}>
-      <TableContainer>
+      <TableContainer maxHeight="100%">
         <Table variant="striped" colorScheme="stripped">
           {!!caption && <TableCaption>{caption}</TableCaption>}
           <Thead>
