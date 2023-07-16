@@ -10,6 +10,7 @@ import {
   Box,
   Button,
   ChakraProvider,
+  CircularProgress,
   extendTheme,
   Menu,
   MenuButton,
@@ -39,13 +40,14 @@ const theme = extendTheme({
     },
   },
 });
-const pageSizes = [10, 20, 50, 100];
+const pageSizes = [5, 10, 25, 50];
 const DataTable = ({
   caption,
   headers = [],
   rows = [],
   pagination = false,
   sorting = false,
+  loader = false,
 }: IDataTable) => {
   const [data, setData] = useState({
     fieldRefrence: "",
@@ -167,13 +169,24 @@ const DataTable = ({
             </Tr>
           </Thead>
           <Tbody>
-            {loopData.map((item, idx) => (
-              <Tr>
-                {headers.map((value, idx) => (
-                  <Td>{item[value]}</Td>
-                ))}
-              </Tr>
-            ))}
+            {!!loopData.length ? (
+              loopData.map((item, idx) => (
+                <Tr>
+                  {headers.map((value, idx) => (
+                    <Td>{item[value]}</Td>
+                  ))}
+                </Tr>
+              ))
+            ) : loader ? (
+              <Box
+                display="flex"
+                alignItems="center"
+                justifyContent="center"
+                padding={24}
+              >
+                <CircularProgress isIndeterminate />
+              </Box>
+            ) : null}
           </Tbody>
         </Table>
       </TableContainer>
