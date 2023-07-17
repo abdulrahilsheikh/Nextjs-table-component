@@ -179,7 +179,7 @@ const DataTable = ({
   return (
     <ChakraProvider theme={theme}>
       <TableContainer>
-        <Table size="sm" variant="striped" colorScheme="stripped">
+        <Table variant="striped" colorScheme="stripped">
           {!!caption && (
             <TableCaption placement="top" textAlign="start" fontWeight="bold">
               {caption}
