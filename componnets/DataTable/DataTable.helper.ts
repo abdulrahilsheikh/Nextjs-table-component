@@ -21,14 +21,11 @@ export const sortAsPerDate = (
 ) => {
   const first = new Date(a).getTime();
   const second = new Date(b).getTime();
-  console.log(first, second);
 
   return direction == "ASC" ? first - second : second - first;
 };
 
 export const filterIsEqualTo = (item: any, value: string) => {
-  console.log(item == value);
-
   return item == value;
 };
 export const filterIsLessThan = (item: any, value: number) => {

@@ -41,7 +41,7 @@ export default function Home() {
       });
       setRows(temp);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
   useEffect(() => {

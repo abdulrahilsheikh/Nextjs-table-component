@@ -1,8 +1,6 @@
 import { Badge } from "@chakra-ui/react";
 
 const StatusBadge = ({ status }: { status: string }) => {
-  console.log(status);
-
   const colorScheme = {
     Pending: "yellow",
     Paid: "green",

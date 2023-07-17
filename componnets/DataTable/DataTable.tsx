@@ -118,7 +118,6 @@ const DataTable = ({
       const isApplied = filterRef.current[column].applied;
       const value = filterRef.current[column].value;
       const type = filterRef.current[column].type;
-      console.log(isApplied, value);
 
       if (filterRef.current[column] && isApplied) {
         filteredData = filteredData.filter((item) => {
@@ -132,10 +131,9 @@ const DataTable = ({
             return filterIncludes(item[column], value);
           }
         });
-        console.log(filteredData);
       }
     });
-    console.log(filteredData);
+
     setPaginationInfo({ ...paginationInfo, currentPage: 1 });
     setData({ fieldRefrence: "", direction: "DESC", rows: filteredData });
   };
@@ -174,7 +172,6 @@ const DataTable = ({
       });
     }
   )(data.rows.length);
-  console.log(filterRef, sorting);
 
   return (
     <ChakraProvider theme={theme}>
@@ -263,7 +260,6 @@ const DataTable = ({
                                       title="Fiter Type"
                                       type="radio"
                                       onChange={(e: any) => {
-                                        console.log(e);
                                         selector.type = e;
                                       }}
                                     >
