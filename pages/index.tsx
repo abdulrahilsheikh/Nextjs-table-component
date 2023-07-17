@@ -39,6 +39,8 @@ export default function Home() {
           ),
         };
       });
+      console.log(temp);
+
       setRows(temp);
     } catch (error) {
       console.error(error);
@@ -58,6 +60,7 @@ export default function Home() {
             <Tab>With Pagination</Tab>
             <Tab>With Both</Tab>
             <Tab>With Filter</Tab>
+            <Tab>With Export Csv</Tab>
           </TabList>
           <TabPanels>
             <TabPanel paddingX="0">
@@ -99,6 +102,18 @@ export default function Home() {
             <TabPanel paddingX="0">
               <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
                 <DataTable
+                  filter
+                  sorting
+                  pagination
+                  headers={headers}
+                  rows={rows}
+                />
+              </Box>
+            </TabPanel>
+            <TabPanel paddingX="0">
+              <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
+                <DataTable
+                  exportCsv
                   filter
                   sorting
                   pagination

@@ -1,3 +1,5 @@
+import { IDataTableRow } from "./DataTable.types";
+
 export const sortAsPerText = (
   a: string,
   b: string,
@@ -36,4 +38,21 @@ export const filterIsGreaterThan = (item: any, value: number) => {
 };
 export const filterIncludes = (item: any, value: string) => {
   return `${item}`.includes(value);
+};
+export const csvDownloader = (csvHead: string[], data: IDataTableRow[]) => {
+  const csvContent: string[] = [];
+  data.forEach((item) => {
+    const temp: string[] = [];
+    csvHead.forEach((key) => {
+      ///@ts-ignore
+      temp.push(item[key]);
+    });
+    csvContent.push(temp.join(","));
+  });
+  const csv = csvHead.join(",") + "\n" + csvContent.join("\n");
+  const downloadBtn = document.createElement("a");
+  downloadBtn.href = "data:text/csv;charset=utf-8," + encodeURI(csv);
+  downloadBtn.target = "_blank";
+  downloadBtn.download = "data.csv";
+  downloadBtn.click();
 };

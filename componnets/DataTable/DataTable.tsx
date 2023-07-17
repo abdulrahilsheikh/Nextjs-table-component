@@ -33,6 +33,7 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  csvDownloader,
   filterIncludes,
   filterIsEqualTo,
   filterIsGreaterThan,
@@ -41,7 +42,7 @@ import {
   sortAsPerNumber,
   sortAsPerText,
 } from "./DataTable.helper";
-import { IDataTable } from "./DataTable.types";
+import { FiterOption, IDataTable, IFilterParm } from "./DataTable.types";
 
 const theme = extendTheme({
   colors: {
@@ -60,8 +61,9 @@ const DataTable = ({
   filter = false,
   loader = false,
   pageSizes = [5, 10, 25, 50],
+  exportCsv = false,
 }: IDataTable) => {
-  const filterRef = useRef<any>({});
+  const filterRef = useRef<IFilterParm>({});
   const [data, setData] = useState({
     fieldRefrence: "",
     direction: "DESC",
@@ -75,13 +77,15 @@ const DataTable = ({
   });
 
   const stringValues = useMemo(() => {
-    const temp: any = {};
+    const temp: { [key: string]: "number" | "string" | "object" } = {};
     const valid = new Set(["number", "string", "object"]);
     if (!rows.length) return temp;
     headers.forEach((key) => {
-      temp[key] = typeof rows[0][key];
-      if (!valid.has(temp[key])) {
+      if (!valid.has(typeof rows[0][key])) {
         temp[key] = "object";
+      } else {
+        ///@ts-ignore
+        temp[key] = typeof rows[0][key];
       }
     });
     return temp;
@@ -111,7 +115,8 @@ const DataTable = ({
     });
     setData({ ...data, fieldRefrence, direction, rows: sortedData });
   };
-  const filterHandler = (filterParams: any) => {
+  const filterHandler = (filterParams: FiterOption) => {
+    if (filterParams.value || filterParams.type) return;
     filterParams.applied = true;
     let filteredData = rows;
     headers.forEach((column) => {
@@ -173,6 +178,15 @@ const DataTable = ({
     }
   )(data.rows.length);
 
+  const downloadHandler = () => {
+    const csvHead: string[] = [];
+    headers.forEach((item) => {
+      if (stringValues[item] != "object") {
+        csvHead.push(item);
+      }
+    });
+    csvDownloader(csvHead, loopData);
+  };
   return (
     <ChakraProvider theme={theme}>
       <TableContainer>
@@ -232,7 +246,8 @@ const DataTable = ({
                                   applied: false,
                                 };
                               }
-                              const selector = filterRef.current[value];
+                              const selector: FiterOption =
+                                filterRef.current[value];
 
                               return (
                                 <>
@@ -343,58 +358,67 @@ const DataTable = ({
           </Tbody>
         </Table>
       </TableContainer>
-      {pagination && (
-        <Box
-          paddingY={3}
-          paddingX={6}
-          display="flex"
-          gap={2}
-          alignItems="center"
-        >
-          <Button
-            onClick={() =>
-              paginationInfo.prevPage &&
-              paginate({
-                ...paginationInfo,
-                currentPage: paginationInfo.currentPage - 1,
-              })
-            }
-          >
-            <ArrowLeftIcon boxSize={3} />
-          </Button>
-          {paginationInfo.currentPage}
-          <Button
-            onClick={() =>
-              paginationInfo.nextPage &&
-              paginate({
-                ...paginationInfo,
-                currentPage: paginationInfo.currentPage + 1,
-              })
-            }
-          >
-            <ArrowRightIcon boxSize={3} />
-          </Button>
-          <Menu>
-            <>
-              <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-                {paginationInfo.pageSize}
-              </MenuButton>
-              <MenuList width={12}>
-                {pageSizes.map((item) => (
-                  <MenuItem
-                    onClick={() =>
-                      paginate({
-                        ...paginationInfo,
-                        pageSize: item,
-                      })
-                    }
-                  >
-                    {item}
-                  </MenuItem>
-                ))}
-              </MenuList>
-            </>
-          </Menu>
+      {(pagination || exportCsv) && (
+        <Box display="flex" gap={2} alignItems="center">
+          {pagination && (
+            <Box
+              paddingY={3}
+              paddingX={6}
+              display="flex"
+              gap={2}
+              alignItems="center"
+            >
+              <Button
+                onClick={() =>
+                  paginationInfo.prevPage &&
+                  paginate({
+                    ...paginationInfo,
+                    currentPage: paginationInfo.currentPage - 1,
+                  })
+                }
+              >
+                <ArrowLeftIcon boxSize={3} />
+              </Button>
+              {paginationInfo.currentPage}
+              <Button
+                onClick={() =>
+                  paginationInfo.nextPage &&
+                  paginate({
+                    ...paginationInfo,
+                    currentPage: paginationInfo.currentPage + 1,
+                  })
+                }
+              >
+                <ArrowRightIcon boxSize={3} />
+              </Button>
+              <Menu>
+                <>
+                  <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                    {paginationInfo.pageSize}
+                  </MenuButton>
+                  <MenuList width={12}>
+                    {pageSizes.map((item) => (
+                      <MenuItem
+                        onClick={() =>
+                          paginate({
+                            ...paginationInfo,
+                            pageSize: item,
+                          })
+                        }
+                      >
+                        {item}
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </>
+              </Menu>
+            </Box>
+          )}
+          {exportCsv && (
+            <Button onClick={downloadHandler} marginY={3} marginX={6}>
+              Export CSV
+            </Button>
+          )}
         </Box>
       )}
     </ChakraProvider>
