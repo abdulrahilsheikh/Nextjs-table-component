@@ -169,8 +169,12 @@ const DataTable = ({
   return (
     <ChakraProvider theme={theme}>
       <TableContainer>
-        <Table variant="striped" colorScheme="stripped">
-          {!!caption && <TableCaption>{caption}</TableCaption>}
+        <Table size="sm" variant="striped" colorScheme="stripped">
+          {!!caption && (
+            <TableCaption placement="top" textAlign="start" fontWeight="bold">
+              {caption}
+            </TableCaption>
+          )}
           <Thead>
             <Tr>
               {headers.map((value, idx) => {
