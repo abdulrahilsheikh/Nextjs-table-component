@@ -116,7 +116,7 @@ const DataTable = ({
     setData({ ...data, fieldRefrence, direction, rows: sortedData });
   };
   const filterHandler = (filterParams: FiterOption) => {
-    if (filterParams.value || filterParams.type) return;
+    if (!filterParams.value || !filterParams.type) return;
     filterParams.applied = true;
     let filteredData = rows;
     headers.forEach((column) => {

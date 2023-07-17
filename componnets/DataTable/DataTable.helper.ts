@@ -37,7 +37,7 @@ export const filterIsGreaterThan = (item: any, value: number) => {
   return item < value;
 };
 export const filterIncludes = (item: any, value: string) => {
-  return `${item}`.includes(value);
+  return `${item}`.toLowerCase().includes(value.toLowerCase());
 };
 export const csvDownloader = (csvHead: string[], data: IDataTableRow[]) => {
   const csvContent: string[] = [];
