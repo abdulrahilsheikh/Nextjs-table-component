@@ -1,8 +1,8 @@
 export const headers = [
   "timestamp",
+  "purchase ID",
   "name",
   "mail",
-  "purchase ID",
   "status",
   "source",
   "selected",

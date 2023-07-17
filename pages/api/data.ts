@@ -9,7 +9,7 @@ export default function handler(
 ) {
   const limit = req.query.limit || 25;
   const data: IDataTableRow[] = [];
-  for (let i = 0; i < limit; i++) {
+  for (let i = 0; i < +limit; i++) {
     const temp: any = {};
     temp.status = faker.helpers.arrayElement(["Pending", "Failed", "Paid"]);
     temp.timestamp = faker.date.anytime();
