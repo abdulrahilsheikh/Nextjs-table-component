@@ -111,23 +111,33 @@ const DataTable = ({
     });
     setData({ ...data, fieldRefrence, direction, rows: sortedData });
   };
-  const filterHandler = (filterParams: any, field: string) => {
+  const filterHandler = (filterParams: any) => {
     filterParams.applied = true;
-    console.log(filterParams);
-    const filteredData = data.rows.filter((item) => {
-      if (filterParams.type == "==") {
-        return filterIsEqualTo(item[field], filterParams.value);
-      } else if (filterParams.type == "<") {
-        return filterIsLessThan(item[field], +filterParams.value);
-      } else if (filterParams.type == ">") {
-        return filterIsGreaterThan(item[field], +filterParams.value);
-      } else if (filterParams.type == "inc") {
-        return filterIncludes(item[field], filterParams.value);
+    let filteredData = rows;
+    headers.forEach((column) => {
+      const isApplied = filterRef.current[column].applied;
+      const value = filterRef.current[column].value;
+      const type = filterRef.current[column].type;
+      console.log(isApplied, value);
+
+      if (filterRef.current[column] && isApplied) {
+        filteredData = filteredData.filter((item) => {
+          if (type == "==") {
+            return filterIsEqualTo(item[column], value);
+          } else if (type == "<") {
+            return filterIsLessThan(item[column], +value);
+          } else if (type == ">") {
+            return filterIsGreaterThan(item[column], +value);
+          } else if (type == "inc") {
+            return filterIncludes(item[column], value);
+          }
+        });
+        console.log(filteredData);
       }
     });
     console.log(filteredData);
-
-    setData({ ...data, rows: filteredData });
+    setPaginationInfo({ ...paginationInfo, currentPage: 1 });
+    setData({ fieldRefrence: "", direction: "DESC", rows: filteredData });
   };
 
   const filterClearHandler = () => {
@@ -137,7 +147,7 @@ const DataTable = ({
       }
     });
     setPaginationInfo({ ...paginationInfo, currentPage: 1 });
-    setData({ ...data, rows: rows });
+    setData({ fieldRefrence: "", direction: "DESC", rows: rows });
   };
 
   const loopData = pagination
@@ -282,7 +292,7 @@ const DataTable = ({
                                     >
                                       <Button
                                         onClick={() => {
-                                          filterHandler(selector, value);
+                                          filterHandler(selector);
                                           onClose();
                                         }}
                                       >
