@@ -261,13 +261,14 @@ const DataTable = ({
                                     variant="outline"
                                   ></MenuButton>
                                   <MenuList
-                                    key={stringValues[value]}
+                                    key={selector.value}
                                     minWidth="240px"
                                   >
                                     <Input
+                                      defaultValue={selector.value}
                                       placeholder="Value to filter"
                                       onChange={(e) => {
-                                        selector.value = e.target.value;
+                                        selector.value = e.target.value.trim();
                                       }}
                                     />
                                     <MenuOptionGroup
