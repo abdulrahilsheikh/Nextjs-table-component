@@ -99,7 +99,6 @@ export default function Home() {
             <TabPanel paddingX="0">
               <Box borderWidth="1px" borderRadius="lg" overflow="hidden">
                 <DataTable
-                  loader
                   filter
                   sorting
                   pagination

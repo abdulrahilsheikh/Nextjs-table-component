@@ -25,3 +25,18 @@ export const sortAsPerDate = (
 
   return direction == "ASC" ? first - second : second - first;
 };
+
+export const filterIsEqualTo = (item: any, value: string) => {
+  console.log(item == value);
+
+  return item == value;
+};
+export const filterIsLessThan = (item: any, value: number) => {
+  return item > value;
+};
+export const filterIsGreaterThan = (item: any, value: number) => {
+  return item < value;
+};
+export const filterIncludes = (item: any, value: string) => {
+  return `${item}`.includes(value);
+};

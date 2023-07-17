@@ -33,6 +33,10 @@ import {
 } from "@chakra-ui/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  filterIncludes,
+  filterIsEqualTo,
+  filterIsGreaterThan,
+  filterIsLessThan,
   sortAsPerDate,
   sortAsPerNumber,
   sortAsPerText,
@@ -72,9 +76,13 @@ const DataTable = ({
 
   const stringValues = useMemo(() => {
     const temp: any = {};
+    const valid = new Set(["number", "string", "object"]);
     if (!rows.length) return temp;
     headers.forEach((key) => {
-      temp[key] = typeof rows[0][key] != "object" ? true : false;
+      temp[key] = typeof rows[0][key];
+      if (!valid.has(temp[key])) {
+        temp[key] = "object";
+      }
     });
     return temp;
   }, [rows]);
@@ -103,31 +111,38 @@ const DataTable = ({
     });
     setData({ ...data, fieldRefrence, direction, rows: sortedData });
   };
-  const filterHandler = (data: any) => {
-    const direction =
-      data.fieldRefrence == fieldRefrence
-        ? data.direction == "DESC"
-          ? "ASC"
-          : "DESC"
-        : "ASC";
-
-    const sortedData = [...data.rows].sort((a, b) => {
-      const first = a[fieldRefrence] as string;
-      const second = b[fieldRefrence] as string;
-      if (!Number.isNaN(+first)) {
-        return sortAsPerNumber(+first, +second, direction);
-      } else if (new Date(first).toString() != "Invalid Date") {
-        return sortAsPerDate(first, second, direction);
-      } else {
-        return sortAsPerText(first, second, direction);
+  const filterHandler = (filterParams: any, field: string) => {
+    filterParams.applied = true;
+    console.log(filterParams);
+    const filteredData = data.rows.filter((item) => {
+      if (filterParams.type == "==") {
+        return filterIsEqualTo(item[field], filterParams.value);
+      } else if (filterParams.type == "<") {
+        return filterIsLessThan(item[field], +filterParams.value);
+      } else if (filterParams.type == ">") {
+        return filterIsGreaterThan(item[field], +filterParams.value);
+      } else if (filterParams.type == "inc") {
+        return filterIncludes(item[field], filterParams.value);
       }
     });
-    setData({ ...data, fieldRefrence, direction, rows: sortedData });
+    console.log(filteredData);
+
+    setData({ ...data, rows: filteredData });
+  };
+
+  const filterClearHandler = () => {
+    headers.forEach((item) => {
+      if (filterRef.current[item]) {
+        filterRef.current[item].applied = false;
+      }
+    });
+    setPaginationInfo({ ...paginationInfo, currentPage: 1 });
+    setData({ ...data, rows: rows });
   };
 
   const loopData = pagination
     ? data.rows.slice(
-        paginationInfo.currentPage,
+        paginationInfo.currentPage - 1,
         paginationInfo.currentPage + paginationInfo.pageSize
       )
     : data.rows;
@@ -181,7 +196,7 @@ const DataTable = ({
                         gap="2"
                         marginRight={0}
                       >
-                        {sorting && stringValues[value] && (
+                        {sorting && stringValues[value] != "object" && (
                           <Button
                             padding={`0.125rem`}
                             onClick={() => {
@@ -196,44 +211,33 @@ const DataTable = ({
                             )}
                           </Button>
                         )}
-                        {filter && stringValues[value] && (
-                          // <Menu
-                          //   padding={`0.125rem`}
-                          //   onClick={() => {
-                          //     stringValues[value] && sortingHandler(value);
-                          //   }}
-                          //   variant="ghost"
-                          // >
-                          //   {data.fieldRefrence == value ? (
-                          //     <HamburgerIcon />
-                          //   ) : (
-                          //     <HamburgerIcon color="grey" />
-                          //   )}
-                          // </Menu>
-
+                        {filter && stringValues[value] != "object" && (
                           <Menu closeOnSelect={false}>
                             {({ onClose }) => {
                               if (!filterRef.current[value]) {
                                 filterRef.current[value] = {
                                   type: "",
                                   value: "",
+                                  applied: false,
                                 };
                               }
                               const selector = filterRef.current[value];
+
                               return (
                                 <>
                                   <MenuButton
                                     colorScheme={
-                                      selector.type && selector.value
-                                        ? "teal"
-                                        : "gray"
+                                      selector.applied ? "teal" : "gray"
                                     }
                                     as={IconButton}
                                     aria-label="Options"
                                     icon={<HamburgerIcon />}
                                     variant="outline"
                                   ></MenuButton>
-                                  <MenuList minWidth="240px">
+                                  <MenuList
+                                    key={stringValues[value]}
+                                    minWidth="240px"
+                                  >
                                     <Input
                                       placeholder="Value to filter"
                                       onChange={(e) => {
@@ -241,23 +245,27 @@ const DataTable = ({
                                       }}
                                     />
                                     <MenuOptionGroup
-                                      defaultValue=""
+                                      defaultValue={selector.type}
                                       title="Fiter Type"
                                       type="radio"
-                                      value={selector.type}
                                       onChange={(e: any) => {
+                                        console.log(e);
                                         selector.type = e;
                                       }}
                                     >
                                       <MenuItemOption value="==">
                                         Is Equal to
                                       </MenuItemOption>
-                                      <MenuItemOption value="<">
-                                        Is Less Than
-                                      </MenuItemOption>
-                                      <MenuItemOption value=">">
-                                        Is Greater Than
-                                      </MenuItemOption>
+                                      {stringValues[value] == "number" ? (
+                                        <MenuItemOption value="<">
+                                          Is Less Than
+                                        </MenuItemOption>
+                                      ) : null}
+                                      {stringValues[value] == "number" ? (
+                                        <MenuItemOption value=">">
+                                          Is Greater Than
+                                        </MenuItemOption>
+                                      ) : null}
                                       <MenuItemOption value="inc">
                                         Includes
                                       </MenuItemOption>
@@ -270,7 +278,7 @@ const DataTable = ({
                                     >
                                       <Button
                                         onClick={() => {
-                                          filterHandler(selector);
+                                          filterHandler(selector, value);
                                           onClose();
                                         }}
                                       >
@@ -278,7 +286,10 @@ const DataTable = ({
                                       </Button>
                                       <Button
                                         colorScheme={"red"}
-                                        onClick={onClose}
+                                        onClick={() => {
+                                          filterClearHandler();
+                                          onClose();
+                                        }}
                                       >
                                         Clear All
                                       </Button>
